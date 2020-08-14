@@ -45,11 +45,17 @@ public class Main {
 
             private long progress = 0;
 
+            private boolean sampled = false;
+
             @Override
             public boolean handleDocumentSource(byte[] bytes, long id, long total) {
+                if (!this.sampled) {
+                    LOGGER.info("sample = {}", new String(bytes));
+                    this.sampled = true;
+                }
                 long newProgress = (long) ((double) id * 100 / (double) total);
                 if (newProgress != this.progress) {
-                    LOGGER.info("progress {}", newProgress);
+                    LOGGER.info("progress = {}%", newProgress);
                     this.progress = newProgress;
                 }
                 try {
