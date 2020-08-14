@@ -41,8 +41,12 @@ public class Main {
                 .toArray(String[]::new);
         LOGGER.info("本机 ElasticSearch 数据目录: {}", (Object) dataDirs);
 
+        String nodeId = System.getProperty("es.nodeId");
+        LOGGER.info("本机 ElasticSearch 节点 ID: {}", nodeId);
+
         ElasticWireOptions options = new ElasticWireOptions();
         options.setDataDirs(dataDirs);
+        options.setNodeId(nodeId);
         ElasticWire elasticWire = new ElasticWire(options);
         elasticWire.export(index, workspace);
         LOGGER.info("完成导出: {}", workspace.getCounters());
