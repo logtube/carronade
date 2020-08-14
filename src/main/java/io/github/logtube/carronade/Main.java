@@ -2,6 +2,7 @@ package io.github.logtube.carronade;
 
 import com.jsoniter.JsonIterator;
 import net.guoyk.eswire.ElasticWire;
+import net.guoyk.eswire.ElasticWireCallback;
 import net.guoyk.eswire.ElasticWireOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,29 @@ public class Main {
                 "/data08/data",
         });
         ElasticWire elasticWire = new ElasticWire(options);
-        elasticWire.export(args[0], (bytes, id, total) -> {
-            try {
-                String project = extractDocumentProject(bytes);
-                if (project == null) {
-                    LOGGER.error("missing project field");
+        elasticWire.export(args[0], new ElasticWireCallback() {
+
+            private long progress = 0;
+
+            @Override
+            public boolean handleDocumentSource(byte[] bytes, long id, long total) {
+                long newProgress = (long) ((double) id * 100 / (double) total);
+                if (newProgress != this.progress) {
+                    LOGGER.info("progress {}", newProgress);
+                    this.progress = newProgress;
+                }
+                try {
+                    String project = extractDocumentProject(bytes);
+                    if (project == null) {
+                        LOGGER.error("missing project field");
+                        return false;
+                    }
+                    counters.put(project, counters.getOrDefault(project, 0) + 1);
+                    return true;
+                } catch (IOException e) {
+                    LOGGER.error("failed to extract project", e);
                     return false;
                 }
-                counters.put(project, counters.getOrDefault(project, 0) + 1);
-                return true;
-            } catch (IOException e) {
-                LOGGER.error("failed to extract project", e);
-                return false;
             }
         });
         LOGGER.info("aggregations = {}", counters);
