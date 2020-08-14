@@ -86,7 +86,7 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
         GZIPOutputStream gzipOutputStream = this.gzipOutputStreams.get(project);
         if (gzipOutputStream == null) {
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(Paths.get(this.workspace, project + ".ndjson.gz").toFile());
+                FileOutputStream fileOutputStream = new FileOutputStream(Paths.get(this.workspace, project + Constants.EXT_NDJSON_GZ).toFile());
                 gzipOutputStream = new GZIPOutputStream(fileOutputStream);
                 this.fileOutputStreams.put(project, fileOutputStream);
                 this.gzipOutputStreams.put(project, gzipOutputStream);
