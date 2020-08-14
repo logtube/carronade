@@ -1,6 +1,6 @@
 package io.github.logtube.carronade;
 
-import com.jayway.jsonpath.JsonPath;
+import com.jsoniter.JsonIterator;
 import net.guoyk.eswire.ElasticWire;
 import net.guoyk.eswire.ElasticWireOptions;
 import org.slf4j.Logger;
@@ -13,6 +13,18 @@ import java.util.concurrent.ExecutionException;
 public class Main {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
+    private static String extractDocumentProject(byte[] bytes) throws IOException {
+        JsonIterator iter = JsonIterator.parse(bytes);
+        for (String field = iter.readObject(); field != null; field = iter.readObject()) {
+            if ("project".equals(field)) {
+                return iter.readString();
+            } else {
+                iter.skip();
+            }
+        }
+        return null;
+    }
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         HashMap<String, Integer> counters = new HashMap<>();
@@ -29,14 +41,20 @@ public class Main {
         });
         ElasticWire elasticWire = new ElasticWire(options);
         elasticWire.export(args[0], (bytes, id, total) -> {
-            String project = JsonPath.read(new String(bytes), "$.project");
-            if (project == null) {
+            try {
+                String project = extractDocumentProject(bytes);
+                if (project == null) {
+                    LOGGER.error("missing project field");
+                    return false;
+                }
+                counters.put(project, counters.getOrDefault(project, 0) + 1);
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("failed to extract project", e);
                 return false;
             }
-            counters.put(project, counters.getOrDefault(project, 0) + 1);
-            return true;
         });
-        LOGGER.info("aggs = {}", counters);
+        LOGGER.info("aggregations = {}", counters);
     }
 
 }
