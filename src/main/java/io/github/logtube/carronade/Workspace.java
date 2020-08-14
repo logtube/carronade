@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
@@ -28,7 +29,7 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
 
     private boolean sampled = false;
 
-    private long progress = 0;
+    private long progress = -1;
 
     public static void forceMkdir(final File directory) throws IOException {
         if (directory.exists()) {
@@ -94,7 +95,7 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
         // progress
         long progress = (long) ((double) id * 100 / (double) total);
         if (progress != this.progress) {
-            LOGGER.info("progress = {}%", progress);
+            LOGGER.info("{}: {}% ({}/{})", new Date(), progress, id, total);
             this.progress = progress;
         }
         // project
