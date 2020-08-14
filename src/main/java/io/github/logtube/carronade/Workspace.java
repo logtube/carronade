@@ -32,7 +32,6 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
     private long progress = 0;
 
     public Workspace(String workspace) throws IOException {
-        FileUtils.deleteDirectory(new File(workspace));
         FileUtils.forceMkdir(new File(workspace));
         this.workspace = workspace;
         this.fileOutputStreams = new HashMap<>();
@@ -120,6 +119,9 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
         }
         for (FileOutputStream value : this.fileOutputStreams.values()) {
             value.close();
+        }
+        for (String project : this.counters.keySet()) {
+            FileUtils.forceDelete(Paths.get(this.workspace, project + Constants.EXT_NDJSON_GZ).toFile());
         }
         this.gzipOutputStreams.clear();
         this.fileOutputStreams.clear();
