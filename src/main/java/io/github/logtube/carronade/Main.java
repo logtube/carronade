@@ -50,7 +50,6 @@ public class Main {
         List<String> projects = new ArrayList<>(workspace.getCounters().keySet());
         LOGGER.info("所有项目: {}", projects);
 
-        elasticWire.close();
         workspace.close();
 
         COSCredentials cosCredentials = new BasicCOSCredentials(System.getProperty("cos.secretId"), System.getProperty("cos.secretKey"));
@@ -84,6 +83,7 @@ public class Main {
         }
 
         elasticWire.delete(index);
+        elasticWire.close();
     }
 
 }
