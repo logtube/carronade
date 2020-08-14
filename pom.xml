@@ -15,11 +15,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
             <groupId>com.jsoniter</groupId>
             <artifactId>jsoniter</artifactId>
             <version>0.9.23</version>

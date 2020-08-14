@@ -2,7 +2,6 @@ package io.github.logtube.carronade;
 
 import com.jsoniter.JsonIterator;
 import net.guoyk.eswire.ElasticWireCallback;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,31 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
 
     private long progress = 0;
 
+    public static void forceMkdir(final File directory) throws IOException {
+        if (directory.exists()) {
+            if (!directory.isDirectory()) {
+                final String message =
+                        "File "
+                                + directory
+                                + " exists and is "
+                                + "not a directory. Unable to create directory.";
+                throw new IOException(message);
+            }
+        } else {
+            if (!directory.mkdirs()) {
+                // Double-check that some other thread or process hasn't made
+                // the directory in the background
+                if (!directory.isDirectory()) {
+                    final String message =
+                            "Unable to create directory " + directory;
+                    throw new IOException(message);
+                }
+            }
+        }
+    }
+
     public Workspace(String workspace) throws IOException {
-        FileUtils.forceMkdir(new File(workspace));
+        forceMkdir(new File(workspace));
         this.workspace = workspace;
         this.fileOutputStreams = new HashMap<>();
         this.gzipOutputStreams = new HashMap<>();
@@ -119,9 +141,6 @@ public class Workspace implements ElasticWireCallback, Closeable, AutoCloseable 
         }
         for (FileOutputStream value : this.fileOutputStreams.values()) {
             value.close();
-        }
-        for (String project : this.counters.keySet()) {
-            FileUtils.forceDelete(Paths.get(this.workspace, project + Constants.EXT_NDJSON_GZ).toFile());
         }
         this.gzipOutputStreams.clear();
         this.fileOutputStreams.clear();

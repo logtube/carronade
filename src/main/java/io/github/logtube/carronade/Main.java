@@ -78,6 +78,11 @@ public class Main {
 
         transferManager.shutdownNow();
 
+        for (String project : projects) {
+            Paths.get(workspace.getWorkspace(), project + Constants.EXT_NDJSON_GZ).toFile().delete();
+            Paths.get(workspace.getWorkspace()).toFile().delete();
+        }
+
         elasticWire.delete(index);
     }
 
