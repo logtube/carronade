@@ -77,6 +77,8 @@ public class Main {
         }
 
         transferManager.shutdownNow();
+
+        elasticWire.delete(index);
     }
 
 }
