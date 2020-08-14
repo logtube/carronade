@@ -73,6 +73,7 @@ public class Main {
 
             Upload upload = transferManager.upload(putObjectRequest);
             upload.waitForCompletion();
+            LOGGER.info("上传完成: {}", key);
         }
 
         transferManager.shutdownNow();
